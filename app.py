@@ -1,9 +1,21 @@
+import requests
+import json
 from modelos.restaurante import Restaurante
+from modelos.cardapio.bebida import Bebida
+from modelos.cardapio.prato import Prato
 
 restaurante_praca = Restaurante(nome='praça', categoria='Gourmet')
-restaurante_praca.receber_avaliacao('Gui', 3)
-restaurante_praca.receber_avaliacao('Lais', 0)
-restaurante_praca.receber_avaliacao('Emy', 2)
+bebida_suco = Bebida('Suco de Melancia', 5.0, 'grande')
+bebida_suco.aplicar_desconto()
+prato_pao = Prato('Pao', 2.0, 'Pao Francês')
+prato_pao.aplicar_desconto()
+
+restaurante_praca.add_cardapio(bebida_suco)
+restaurante_praca.add_cardapio(prato_pao)
+
+# restaurante_praca.receber_avaliacao('Gui', 3)
+# restaurante_praca.receber_avaliacao('Lais', 0)
+# restaurante_praca.receber_avaliacao('Emy', 2)
 # restaurante_mexicano = Restaurante(nome='mexican food', categoria='Mexicana')
 # restaurante_japones = Restaurante(nome='japa', categoria='Japonesa')
 
@@ -12,7 +24,31 @@ restaurante_praca.receber_avaliacao('Emy', 2)
 
 
 def main():
-    Restaurante.listar_restaurantes()
+    url = "https://guilhermeonrails.github.io/api-restaurantes/restaurantes.json"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        dados_json = response.json()
+        dados_restaurante = {}
+        for item in dados_json:
+            nome_restaurante = item['Company']
+            if nome_restaurante not in dados_restaurante:
+                dados_restaurante[nome_restaurante] = []
+
+            dados_restaurante[nome_restaurante].append({
+                'item': item['Item'],
+                'price': item['price'],
+                'description': item['description']
+            })
+    else:
+        print(f'O erro foi {response.status_code}')
+
+    for nome_do_restaurante, dados in dados_restaurante.items():
+        nome_do_arquivo = f'./restaurantes/{nome_do_restaurante}.json'
+        with open(nome_do_arquivo, 'w') as arquivo_restaurante:
+            json.dump(dados, arquivo_restaurante, indent=4)
+    #restaurante_praca.exibir_cardapio
+    # Restaurante.listar_restaurantes()
 
 
 if __name__ == '__main__':

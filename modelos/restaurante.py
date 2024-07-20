@@ -1,5 +1,6 @@
 from statistics import mean
 from modelos.avaliacao import Avaliacao
+from modelos.cardapio.item_cardapio import ItemCardapio
 
 class Restaurante:
     """Representa um restaurante e suas características."""
@@ -20,6 +21,7 @@ class Restaurante:
         self._categoria = categoria.upper()
         self._ativo = False
         self._avaliacao = []
+        self._cardapio = []
         Restaurante.restaurantes.append(self)
 
     def __str__(self):
@@ -57,7 +59,6 @@ class Restaurante:
             self._avaliacao.append(avaliacao)
         else:
             raise ValueError("Avaliação precisa ser entre 0 e 5")
-       
 
     @property
     def media_avaliacoes(self):
@@ -77,3 +78,20 @@ class Restaurante:
         #Roda a função em cima da lista, transformando numa lista de numeros
         notas = list(map(lambda x: x._nota, self._avaliacao))
         return round(mean(notas), 1)
+
+    def add_cardapio(self, item):
+        if isinstance(item, ItemCardapio):
+            self._cardapio.append(item)
+        else:
+            raise TypeError('Item não pertence ao tipo ItemCardapio')
+
+    @property
+    def exibir_cardapio(self):
+        print(f'Cardapio do restaurante {self._nome}\n')
+        for i, item in enumerate(self._cardapio, start=1):
+            if hasattr(item, '_descricao'):
+                mensagem_prato = f'{i}. Nome: {item._nome} | Preço: R$ {item._preco} | Descrição: {item._descricao}'
+                print(mensagem_prato)
+            else:
+                mensagem_bebida = f'{i}. Nome: {item._nome} | Preço: R$ {item._preco} | Tamanho: {item._tamanho}'
+                print(mensagem_bebida)
